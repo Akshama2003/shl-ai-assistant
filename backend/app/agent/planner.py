@@ -54,12 +54,14 @@ def is_refinement(query: str):
 
     refinement_words = [
         "actually",
-        "instead",
         "also",
         "include",
-        "remove",
         "add",
-        "change"
+        "remove",
+        "instead",
+        "change",
+        "only",
+        "exclude"
     ]
 
     return any(word in q for word in refinement_words)
