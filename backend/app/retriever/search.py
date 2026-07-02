@@ -2,7 +2,7 @@ import numpy as np
 
 from app.retriever.embeddings import embed
 from app.retriever.vector_store import load_vector_store
-from app.retriever.reranker import rerank
+
 
 index, documents = load_vector_store()
 
@@ -22,4 +22,4 @@ def semantic_search(query, top_k=5):
 
         results.append(documents[idx])
 
-    return rerank(query, results, top_k=top_k)
+    return results[:top_k]
