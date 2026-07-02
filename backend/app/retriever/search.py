@@ -12,46 +12,51 @@ def load_catalog():
 catalog = load_catalog()
 
 
+def text_field(value):
+    if isinstance(value, list):
+        return " ".join(str(v) for v in value)
+    return str(value or "")
+
+
+def score_document(query: str, doc: dict):
+    q = query.lower()
+    words = q.split()
+
+    name = text_field(doc.get("name")).lower()
+    description = text_field(doc.get("description")).lower()
+    keys = text_field(doc.get("keys")).lower()
+    job_levels = text_field(doc.get("job_levels")).lower()
+    languages = text_field(doc.get("languages")).lower()
+
+    score = 0
+
+    for word in words:
+        if word in name:
+            score += 10
+        if word in keys:
+            score += 6
+        if word in description:
+            score += 4
+        if word in job_levels:
+            score += 3
+        if word in languages:
+            score += 1
+
+    return score
+
+
 def semantic_search(query: str, top_k: int = 10):
-
-    query = query.lower()
-
     scored = []
 
     for doc in catalog:
+        if doc.get("status") != "ok":
+            continue
 
-        score = 0
-
-        title = doc.get("name", "").lower()
-
-        description = doc.get("description", "").lower()
-
-        category = doc.get("category", "").lower()
-
-        skills = " ".join(doc.get("skills", [])).lower()
-
-        roles = " ".join(doc.get("roles", [])).lower()
-
-        for word in query.split():
-
-            if word in title:
-                score += 10
-
-            if word in skills:
-                score += 8
-
-            if word in roles:
-                score += 6
-
-            if word in category:
-                score += 4
-
-            if word in description:
-                score += 2
+        score = score_document(query, doc)
 
         if score > 0:
             scored.append((score, doc))
 
-    scored.sort(reverse=True, key=lambda x: x[0])
+    scored.sort(key=lambda x: x[0], reverse=True)
 
     return [doc for _, doc in scored[:top_k]]

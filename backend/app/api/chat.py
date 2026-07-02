@@ -8,7 +8,9 @@ from app.models.response import ChatResponse, Recommendation
 router = APIRouter()
 
 
-def normalize_url(url: str) -> str:
+def normalize_url(doc: dict):
+    url = doc.get("url") or doc.get("link") or ""
+
     if not url:
         return "https://www.shl.com/"
 
@@ -16,6 +18,15 @@ def normalize_url(url: str) -> str:
         return "https://www.shl.com" + url
 
     return url
+
+
+def get_test_type(doc: dict):
+    keys = doc.get("keys", [])
+
+    if isinstance(keys, list):
+        return ", ".join(keys)
+
+    return doc.get("test_type", "")
 
 
 @router.post("/chat", response_model=ChatResponse)
@@ -27,20 +38,16 @@ async def chat(request: ChatRequest):
     recommendations = []
 
     for doc in state["search_results"][:10]:
-        url = normalize_url(doc.get("url", ""))
-
         recommendations.append(
             Recommendation(
-                name=doc.get("title", doc.get("name", "")),
-                url=url,
-                test_type=doc.get("category", doc.get("test_type", ""))
+                name=doc.get("name", doc.get("title", "")),
+                url=normalize_url(doc),
+                test_type=get_test_type(doc)
             )
         )
-
-    end = len(recommendations) > 0
 
     return ChatResponse(
         reply=state["response"],
         recommendations=recommendations,
-        end_of_conversation=end
+        end_of_conversation=len(recommendations) > 0
     )
