@@ -1,11 +1,20 @@
-from app.agent.prompts import load_prompt
-from app.agent.llm import ask_llm
+def compare(query, documents):
 
+    if len(documents) < 2:
+        return "I couldn't find enough assessments to compare."
 
-def compare(query: str, documents: list):
-    prompt = load_prompt("compare.txt")
+    a = documents[0]
+    b = documents[1]
 
-    prompt = prompt.replace("{query}", query)
-    prompt = prompt.replace("{documents}", str(documents[:10]))
+    return f"""
+Comparison
 
-    return ask_llm(prompt)
+{a.get('title', a.get('name'))}
+
+vs
+
+{b.get('title', b.get('name'))}
+
+Categories:
+{a.get('category')} vs {b.get('category')}
+"""

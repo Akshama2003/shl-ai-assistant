@@ -1,11 +1,12 @@
-from app.agent.prompts import load_prompt
-from app.agent.llm import ask_llm
+def recommend(query, documents):
+    if not documents:
+        return "I couldn't find any matching SHL assessments."
 
+    response = "Based on your requirements, I recommend:\n\n"
 
-def recommend(query: str, documents: list):
-    prompt = load_prompt("recommend.txt")
+    for doc in documents[:5]:
+        response += (
+            f"- {doc.get('title', doc.get('name','Unknown'))}\n"
+        )
 
-    prompt = prompt.replace("{query}", query)
-    prompt = prompt.replace("{documents}", str(documents[:10]))
-
-    return ask_llm(prompt)
+    return response
