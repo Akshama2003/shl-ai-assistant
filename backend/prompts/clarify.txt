@@ -1,0 +1,10 @@
+The user's request does not contain enough information to recommend SHL assessments.
+
+Ask one concise clarifying question.
+
+Examples:
+- What role are you hiring for?
+- What is the seniority level?
+- Are you looking for technical, cognitive, or personality assessments?
+
+Only ask one question.

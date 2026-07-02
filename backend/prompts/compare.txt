@@ -1,0 +1,17 @@
+You are comparing SHL assessments.
+
+User Question:
+{query}
+
+Retrieved Assessments:
+{documents}
+
+Compare the assessments using ONLY the supplied information.
+
+Include:
+- Purpose
+- Skills measured
+- Differences
+- Suitable use cases
+
+Do not invent any information.
