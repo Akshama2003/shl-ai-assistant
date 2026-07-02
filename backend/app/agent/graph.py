@@ -66,9 +66,18 @@ def run_agent(query: str):
 
     # Default recommendation
 
-    state["response"] = recommend(
+    reply = recommend(
         query,
         state["search_results"]
     )
+
+    if state.get("refinement"):
+        reply = (
+            "I've updated the recommendations based on your latest requirements.\n\n"
+            + reply
+        )
+
+    state["response"] = reply
+
 
     return state

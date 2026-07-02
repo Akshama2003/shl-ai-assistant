@@ -1,47 +1,34 @@
 # SHL Conversational Assessment Recommender
 
-## Overview
+## Problem Statement
 
-This project implements a conversational AI assistant that recommends SHL Individual Test Solutions using a Retrieval-Augmented Generation (RAG) architecture.
-
-The assistant is designed to:
-
-- Clarify vague hiring requirements.
-- Recommend relevant SHL assessments.
-- Support follow-up refinements.
-- Compare SHL assessments.
-- Refuse off-topic or unsafe requests.
-- Only recommend assessments present in the SHL catalog.
+Recruiters often describe hiring requirements in natural language rather than using predefined assessment names. This project converts conversational queries into relevant SHL assessment recommendations.
 
 ---
 
-## System Architecture
+# Architecture
 
-User
-
-↓
-
-FastAPI
+User Query
 
 ↓
 
-Conversation Builder
+Intent Detection
 
 ↓
 
-Intent Planner
+Clarification
 
 ↓
 
-Semantic Search (FAISS)
+Catalog Search
 
 ↓
 
-CrossEncoder Re-ranker
+Ranking
 
 ↓
 
-Gemini
+Recommendation
 
 ↓
 
@@ -49,110 +36,78 @@ JSON Response
 
 ---
 
-## Retrieval Pipeline
+# Catalog
 
-The SHL catalog is scraped and stored as structured JSON.
+The application uses the SHL Individual Test Solutions catalog.
 
-Each assessment is embedded using:
+Each assessment contains:
 
-all-MiniLM-L6-v2
-
-Embeddings are stored inside a FAISS vector index.
-
-For every query:
-
-1. Generate embedding.
-2. Retrieve Top-20 candidates.
-3. Re-rank using CrossEncoder.
-4. Keep Top-10.
-5. Pass retrieved assessments to Gemini.
-
-This reduces hallucinations and improves Recall@10.
+- Name
+- Description
+- Duration
+- Job Levels
+- Languages
+- Assessment Areas
+- Remote Testing
+- Adaptive Testing
+- Official SHL URL
 
 ---
 
-## Conversation Flow
+# Retrieval
 
-The API is stateless.
+The retrieval engine performs:
 
-Every POST /chat request contains the complete conversation history.
+- keyword matching
+- role matching
+- skills matching
+- assessment area matching
+- business rule boosting
+
+Results are ranked before recommendation.
+
+---
+
+# Agent Behaviour
 
 The assistant supports:
 
-- Clarification
-- Recommendation
-- Refinement
-- Comparison
-- Refusal
+- clarification
+- recommendation
+- refinement
+- comparison
+- prompt injection protection
+- off-topic refusal
 
-without storing server-side state.
-
----
-
-## Prompt Design
-
-Five prompt templates are used.
-
-- system.txt
-- recommend.txt
-- compare.txt
-- clarify.txt
-- refusal.txt
-
-The prompts instruct Gemini to only use retrieved SHL catalog data.
+Conversation history is passed in every request, making the API stateless.
 
 ---
 
-## Guardrails
+# Evaluation
 
-The assistant includes:
+The assistant was evaluated using the provided SHL public conversation traces.
 
-- Prompt injection detection
-- Off-topic detection
-- URL validation
-- Catalog-only recommendations
+The following scenarios were tested:
 
----
-
-## Technology Stack
-
-Backend
-
-- FastAPI
-- Python
-
-Retrieval
-
-- Sentence Transformers
-- FAISS
-- CrossEncoder
-
-LLM
-
-- Gemini
-
-Deployment
-
-- Docker
-- Render
+- vague requests
+- recommendation
+- comparison
+- refinement
+- prompt injection
+- off-topic questions
 
 ---
 
-## Evaluation
+# Trade-offs
 
-The project was evaluated using:
+A lightweight ranking approach was chosen over a large vector database to improve deployment speed and reduce memory usage on Render Free Tier.
 
-- Health endpoint tests
-- Chat schema tests
-- Clarification tests
-- Refusal tests
-- Recommendation tests
+---
 
-The design aligns with SHL's evaluation criteria:
+# Future Improvements
 
-- Schema compliance
-- Recall@10
-- Clarification behavior
-- Refinement
-- Comparison
-- Prompt injection resistance
+- Hybrid retrieval
+- Cross-encoder reranking
+- Vector database
+- LLM explanation generation
+- Conversation memory

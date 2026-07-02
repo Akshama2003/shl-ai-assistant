@@ -37,12 +37,16 @@ async def chat(request: ChatRequest):
 
     recommendations = []
 
-    for doc in state["search_results"][:10]:
+    for doc in state["search_results"][:5]:
         recommendations.append(
             Recommendation(
                 name=doc.get("name", doc.get("title", "")),
                 url=normalize_url(doc),
-                test_type=get_test_type(doc)
+                test_type=(
+                    doc.get("category")
+                    or ", ".join(doc.get("keys", [])[:2])
+                    or doc.get("test_type", "")
+                )
             )
         )
 

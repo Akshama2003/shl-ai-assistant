@@ -1,33 +1,59 @@
-# Deployment
+# Deployment Guide
 
 ## Local
 
-```bash
-cd backend
+Install requirements
 
-uvicorn app.main:app --reload
+```bash
+pip install -r requirements.txt
 ```
 
-Swagger
-
-http://127.0.0.1:8000/docs
-
----
-
-## Docker
+Run
 
 ```bash
-docker build -t shl-ai-assistant .
-
-docker run -p 8000:8000 shl-ai-assistant
+uvicorn app.main:app --reload
 ```
 
 ---
 
 ## Render
 
+Root Directory
+
+```
+backend
+```
+
+Build Command
+
+```bash
+pip install -r requirements.txt
+```
+
 Start Command
 
 ```bash
 uvicorn app.main:app --host 0.0.0.0 --port $PORT
+```
+
+Environment Variables
+
+```
+GEMINI_API_KEY=...
+```
+
+---
+
+## Health Endpoint
+
+```
+/health
+```
+
+---
+
+## API Docs
+
+```
+/docs
 ```

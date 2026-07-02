@@ -1,44 +1,58 @@
 # API Documentation
 
-## GET /health
+## Base URL
 
-Returns:
+```
+https://shl-ai-assistant-jfj6.onrender.com
+```
+
+---
+
+# GET /health
+
+Returns service health.
+
+### Response
 
 ```json
 {
-  "status":"ok"
+    "status":"ok"
 }
 ```
 
 ---
 
-## POST /chat
+# POST /chat
 
-Request
+Accepts complete conversation history.
+
+### Request
 
 ```json
 {
-  "messages":[
-    {
-      "role":"user",
-      "content":"Hiring a Java developer"
-    }
-  ]
+    "messages":[
+        {
+            "role":"user",
+            "content":"Need Java Developer assessment"
+        }
+    ]
 }
 ```
 
-Response
+---
+
+### Response
 
 ```json
 {
-  "reply":"...",
-  "recommendations":[
-    {
-      "name":"Java 8 (New)",
-      "url":"...",
-      "test_type":"K"
-    }
-  ],
-  "end_of_conversation":true
+    "reply":"Based on your requirements...",
+    "recommendations":[
+        {
+            "name":"Java 8",
+            "url":"https://www.shl.com/...",
+            "test_type":"Knowledge & Skills"
+        }
+    ],
+    "end_of_conversation":true
 }
 ```

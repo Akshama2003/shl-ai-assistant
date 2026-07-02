@@ -1,29 +1,42 @@
 def recommend(query, documents):
     if not documents:
-        return "I couldn't find suitable SHL assessments for your request."
+        return (
+            "Sorry, I couldn't find any matching SHL assessments. "
+            "Could you provide more details about the role, skills, or job level?"
+        )
 
-    response = "Based on your requirements, I recommend the following SHL assessments:\n\n"
+    response = (
+        "Based on your requirements, I recommend the following SHL assessments:\n\n"
+    )
 
     for i, doc in enumerate(documents[:5], start=1):
-        name = doc.get("name", "Unknown Assessment")
-        keys = doc.get("keys", [])
-        duration = doc.get("duration", "Not specified")
-        remote = doc.get("remote", "Not specified")
-        adaptive = doc.get("adaptive", "Not specified")
-        description = doc.get("description", "No description available.")
 
-        if isinstance(keys, list):
-            keys_text = ", ".join(keys)
-        else:
-            keys_text = str(keys)
+        name = doc.get("name", "Unknown Assessment")
+
+        category = (
+            doc.get("category")
+            or ", ".join(doc.get("keys", [])[:2])
+            or "Not specified"
+        )
+
+        duration = doc.get("duration") or "Not specified"
+
+        description = doc.get("description", "").strip()
+
+        if len(description) > 180:
+            description = description[:180].rsplit(" ", 1)[0] + "..."
 
         response += (
-            f"{i}. {name}\n"
-            f"Type: {keys_text}\n"
-            f"Duration: {duration or 'Not specified'}\n"
-            f"Remote Testing: {remote}\n"
-            f"Adaptive: {adaptive}\n"
+            f"**{i}. {name}**\n"
+            f"Category: {category}\n"
+            f"Duration: {duration}\n"
             f"Why Recommended: {description}\n\n"
         )
+
+    response += (
+        "These recommendations are based on your stated requirements. "
+        "If you'd like, I can also recommend personality, cognitive, technical, "
+        "or leadership assessments specifically."
+    )
 
     return response
