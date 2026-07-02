@@ -1,4 +1,5 @@
 import json
+import re
 from pathlib import Path
 
 CATALOG_PATH = Path("data/catalog.json")
@@ -12,6 +13,10 @@ def load_catalog():
 catalog = load_catalog()
 
 
+def normalize(text):
+    return re.sub(r"[^a-z0-9+#. ]", " ", str(text).lower())
+
+
 def text_field(value):
     if isinstance(value, list):
         return " ".join(str(v) for v in value)
@@ -19,28 +24,50 @@ def text_field(value):
 
 
 def score_document(query: str, doc: dict):
-    q = query.lower()
-    words = q.split()
+    q = normalize(query)
+    words = [w for w in q.split() if len(w) > 1]
 
-    name = text_field(doc.get("name")).lower()
-    description = text_field(doc.get("description")).lower()
-    keys = text_field(doc.get("keys")).lower()
-    job_levels = text_field(doc.get("job_levels")).lower()
-    languages = text_field(doc.get("languages")).lower()
+    name = normalize(doc.get("name", ""))
+    description = normalize(doc.get("description", ""))
+    keys = normalize(text_field(doc.get("keys", [])))
+    job_levels = normalize(text_field(doc.get("job_levels", [])))
+    languages = normalize(text_field(doc.get("languages", [])))
+    duration = normalize(doc.get("duration", ""))
+
+    full_text = " ".join([name, description, keys, job_levels, languages, duration])
 
     score = 0
 
     for word in words:
         if word in name:
-            score += 10
+            score += 20
         if word in keys:
-            score += 6
+            score += 10
         if word in description:
-            score += 4
+            score += 6
         if word in job_levels:
-            score += 3
+            score += 4
         if word in languages:
             score += 1
+
+    role_boosts = {
+        "java": ["java", "j2ee", "enterprise java", "core java"],
+        "python": ["python"],
+        "sql": ["sql", "database"],
+        "excel": ["excel", "spreadsheet"],
+        "manager": ["opq", "leadership", "management", "personality"],
+        "leadership": ["opq", "leadership", "personality"],
+        "personality": ["opq", "personality", "behavior"],
+        "cognitive": ["verify", "ability", "reasoning", "numerical", "verbal", "deductive", "inductive"],
+        "customer": ["contact center", "customer", "service"],
+        "support": ["contact center", "customer", "service"]
+    }
+
+    for trigger, targets in role_boosts.items():
+        if trigger in q:
+            for target in targets:
+                if target in full_text:
+                    score += 15
 
     return score
 
@@ -49,7 +76,7 @@ def semantic_search(query: str, top_k: int = 10):
     scored = []
 
     for doc in catalog:
-        if doc.get("status") != "ok":
+        if doc.get("status") and doc.get("status") != "ok":
             continue
 
         score = score_document(query, doc)
