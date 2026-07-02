@@ -1,26 +1,14 @@
 import json
 
-from app.scraper.crawler import fetch
-from app.scraper.parser import parse_product_cards
+from app.scraper.crawler import fetch_page
 
+URL = "https://www.shl.com/solutions/products/product-catalog/"
 
-URL = "https://www.shl.com/products/"
+print("Downloading catalog...")
 
+html = fetch_page(URL)
 
-html = fetch(URL)
+with open("catalog_page.html", "w", encoding="utf8") as f:
+    f.write(html)
 
-cards = parse_product_cards(html)
-
-with open(
-    "data/catalog.json",
-    "w",
-    encoding="utf8"
-) as f:
-
-    json.dump(
-        cards,
-        f,
-        indent=4
-    )
-
-print(len(cards))
+print("Saved HTML to catalog_page.html")

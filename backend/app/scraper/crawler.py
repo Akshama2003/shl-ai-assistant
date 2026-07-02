@@ -1,19 +1,16 @@
-import requests
-
-BASE_URL = "https://www.shl.com"
+from playwright.sync_api import sync_playwright
 
 
-def fetch(url: str):
+def fetch_page(url: str) -> str:
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=True)
 
-    response = requests.get(
-        url,
-        timeout=30,
-        headers={
-            "User-Agent":
-            "Mozilla/5.0"
-        }
-    )
+        page = browser.new_page()
 
-    response.raise_for_status()
+        page.goto(url, wait_until="networkidle", timeout=120000)
 
-    return response.text
+        html = page.content()
+
+        browser.close()
+
+        return html
