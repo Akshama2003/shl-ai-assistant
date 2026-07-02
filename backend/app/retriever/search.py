@@ -1,25 +1,43 @@
-import numpy as np
-
-from app.retriever.embeddings import embed
-from app.retriever.vector_store import load_vector_store
+import json
+from pathlib import Path
 
 
-index, documents = load_vector_store()
+DATA_PATH = Path("data/catalog.json")
 
 
-def semantic_search(query, top_k=5):
+def load_catalog():
+    with open(DATA_PATH, encoding="utf8") as f:
+        return json.load(f)
 
-    vector = embed([query])
 
-    distances, indices = index.search(
-        np.array(vector).astype("float32"),
-        top_k
+documents = load_catalog()
+
+
+def score_document(query: str, doc: dict):
+    q_words = set(query.lower().split())
+
+    text = " ".join([
+        doc.get("title", ""),
+        doc.get("name", ""),
+        doc.get("description", ""),
+        doc.get("category", ""),
+        doc.get("test_type", "")
+    ]).lower()
+
+    score = 0
+
+    for word in q_words:
+        if word in text:
+            score += 1
+
+    return score
+
+
+def semantic_search(query, top_k=10):
+    ranked = sorted(
+        documents,
+        key=lambda doc: score_document(query, doc),
+        reverse=True
     )
 
-    results = []
-
-    for idx in indices[0]:
-
-        results.append(documents[idx])
-
-    return results[:top_k]
+    return ranked[:top_k]

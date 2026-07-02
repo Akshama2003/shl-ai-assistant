@@ -29,7 +29,7 @@ def run_agent(query: str):
 
     state["search_results"] = semantic_search(
         query,
-        top_k=20
+        top_k=10
     )
 
     if state["intent"] == "compare":
